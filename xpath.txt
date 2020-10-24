@@ -1,0 +1,3 @@
+Products = $x('//h2[@class="woocommerce-loop-product__title"]/text()')
+Prices = $x(//span[@class=woocommerce-Price-amount amount]/text())
+Details = $x(//div[@class=woocommerce-product-details__short-description]/text())
