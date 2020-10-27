@@ -1,3 +1,5 @@
-Products = $x('//h2[@class="woocommerce-loop-product__title"]/text()')
-Prices = $x(//span[@class=woocommerce-Price-amount amount]/text())
-Details = $x(//div[@class=woocommerce-product-details__short-description]/text())
+product_title = '//div[@class="single-product-wrapper"]/div[@class="summary entry-summary"]/div[@class="single-product-header"]/h1[@class="product_title entry-title"]/text()'
+XPATH_LINK_TO_PRODUCT= '//div[@class="product-inner"]/a/@href' #extraemos los a href que estan dentro de div con clase product-inner 
+Details = $x(//div[@class=woocommerce-product-details__short-description]/p/text())
+Merida-price ='//div[@class="woocommerce-product-details__short-description"]/h4[@class="precio-oferta-flash"]/span/text()' 
+Price = '//div[@class="product-actions"]/p[@class="price"]/ins/span[@class="woocommerce-Price-amount amount"]/text()'
