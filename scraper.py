@@ -12,7 +12,7 @@ XPATH_PRICE = '//div[@class="product-actions"]/p[@class="price"]/span[@class="wo
 XPATH_MERIDA_PRICE ='//div[@class="woocommerce-product-details__short-description"]/h4[@class="precio-oferta-flash"]/span/text()' 
 XPATH_DETAILS = '//div[@class="woocommerce-Tabs-panel woocommerce-Tabs-panel--description panel entry-content wc-tab"]/*/text()'
 
-def parse_product(link, today):
+def parse_product(link, today, category_name):
     try:
         response=requests.get(link)
         if response.status_code == 200:
@@ -37,7 +37,7 @@ def parse_product(link, today):
             except IndexError:
                 return
 
-            with open(f'{today}/{product_name}.txt', 'w' , encoding='utf-8') as f:
+            with open(f'{today}/{category_name}/{product_name}.txt', 'w' , encoding='utf-8') as f:
                 f.write(product_name)
                 f.write('\n')
                 f.write('Precio: ')
@@ -65,22 +65,45 @@ def parse_home():
             links_to_category = list(set(parsed.xpath(XPATH_LINK_TO_CATEGORY)))
             #print(links_to_category)
             print(f'Hemos encontrado {len(links_to_category)} categorias')
+            links_to_category_review = []
+            for link in links_to_category:
+                category_name = link.split('/')
+                indice=len(category_name)-2
+                last=len(category_name)-1
+                category_name=category_name[indice] +'/'+ category_name[last]
+                if category_name.find("product-category") >= 0:
+                    print (f'{link} No tomado en cuenta')
+                else:
+                    links_to_category_review.append(link)
 
             today = datetime.date.today().strftime('%d-%m-%y')
             if not os.path.isdir(today):
                 os.mkdir(today)
 
-            for link in links_to_category:
+            
+            
+            for link in links_to_category_review:
                 try:
                     new_response = requests.get(link)
                     if new_response.status_code == 200:
                         new_home = new_response.content.decode('utf-8')
                         new_parsed = html.fromstring(new_home)
                         links_to_product = new_parsed.xpath(XPATH_LINK_TO_PRODUCT)
+                        category_name = link.split('/')
+                        indice=len(category_name)-2
+                        category_name=category_name[indice]
                         #print(links_to_product)
-                        print(f'En esta categoria hay {len(links_to_product)} productos')
+                        print(f'En la categoria {category_name} hay {len(links_to_product)} productos')
+                        if len(links_to_product) == 0:
+                            print('No hay productos, no se crea el directorio')
+                        else:
+                            print('Creando el directorio')
+                            current_directory = os.getcwd()
+                            final_directory = os.path.join(today, category_name)
+                            if not os.path.isdir(final_directory):
+                               os.mkdir(final_directory) 
                         for new_link in links_to_product:
-                            parse_product(new_link, today)
+                            parse_product(new_link, today, category_name)
                     else:
                         raise ValueError(f'Error: {new_response.status_code}')
                 except ValueError as new_ve:
